@@ -222,6 +222,8 @@ int str_checkStorage(int x, int y) {
 //char passwd[] : password string (4 characters)
 //return : 0 - successfully put the package, -1 - failed to put
 int str_pushToStorage(int x, int y, int nBuilding, int nRoom, char msg[MAX_MSG_SIZE+1], char passwd[PASSWD_LEN+1]) {
+	int i;
+	
 	if(deliverySystem[x][y].cnt == 0) // if storage is empty
 	{
 		deliverySystem[x][y].building = nBuilding; //input user information in the storage 
