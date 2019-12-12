@@ -28,12 +28,6 @@ static int systemSize[2] = {0, 0};  		//row/column of the delivery system
 static char masterPassword[PASSWD_LEN+1];	//master password
 
 
-
-
-// ------- inner functions ---------------
-
-//print the inside context of a specific cell
-//int x, int y : cell to print the context
 static void printStorageInside(int x, int y) {
 	printf("\n------------------------------------------------------------------------\n");
 	printf("------------------------------------------------------------------------\n");
@@ -55,7 +49,7 @@ static void initStorage(int x, int y) {
     deliverySystem[x][y].room = 0;
     strcpy(deliverySystem[x][y].passwd, "login"); // initialize password to "login"
    		deliverySystem[x][y].cnt = 0;
-   		deliverySystem[x][y].context = (char*)malloc(sizeof(char)*MAX_MSG_SIZE); // "context" malloc
+   		deliverySystem[x][y].context = (char*)malloc(sizeof(char)*MAX_MSG_SIZE); // create context malloc  
    	strcpy(deliverySystem[x][y].context, "context"); // initialize context to "context"
 	
 }
@@ -82,12 +76,34 @@ static int inputPasswd(int x, int y) {
 //char* filepath : filepath and name to write
 //return : 0 - backup was successfully done, -1 - failed to backup
 int str_backupSystem(char* filepath) {
+	
 	FILE *fp;
-	fp = fopen(filepath,"w");
-	fprintf(fp, )
-	fclose(fp);
+	int i,j;
+
+   fp = fopen(filepath, "w");
    
-return 0;
+   if(fp == NULL) // if file backup is failed
+   {
+      return -1;
+   }
+   
+   fprintf(fp, "%d %d\n", systemSize[0], systemSize[1]); //row. column
+   fprintf(fp, "%s\n", masterPassword); // masterPassword
+   
+   for(i=0;i<systemSize[0]; i++)
+   {
+      for(j=0;j<systemSize[1]; j++)
+      {
+         if(deliverySystem[i][j].cnt > 0) // if deliverySystem[i][j] has a package
+         {
+            fprintf(fp, "%d %d %d %d %s\n ",i,j,deliverySystem[i][j].building, deliverySystem[i][j].room, deliverySystem[i][j].passwd);
+            fprintf(fp, "%s\n",deliverySystem[i][j].context);
+         }  
+      }
+    }
+   
+   fclose(fp);
+   return 0;
 }
 
 //create delivery system on the double pointer deliverySystem
@@ -111,12 +127,12 @@ int str_createSystem(char* filepath) {
    struct filepath *p;
     
    fscanf(fp,"%d %d",&systemSize[0], systemSize[1]);
-    
-   deliverySystem = (storage_t**)malloc(sizeof(storage_t*)*systemSize[0]);  
+
+   deliverySystem = (storage_t**)malloc(sizeof(storage_t*)*systemSize[0]);  //create row malloc
    for(i=0;i<systemSize[0];i++) { 
-   deliverySystem[i] = (storage_t*)malloc(sizeof(storage_t)*systemSize[1]);
+   deliverySystem[i] = (storage_t*)malloc(sizeof(storage_t)*systemSize[1]); //create column malloc
    
-   if (fp==NULL){
+   if (fp==NULL){ // if allocating memory is failed
       printf("error in allocating memory\n");
       return -1;
    }
@@ -124,8 +140,6 @@ int str_createSystem(char* filepath) {
    return; 
 }
 }
-   if(deliverySystem[i][j].cnt!=0 )
-   {
       fscanf(fp,"%d %d",&i,&j);
       fscanf(fp,"%d ",&deliverySystem[i][j].building,&deliverySystem[i][j].room);
       fscanf(fp,"%s %s",deliverySystem[i][j].passwd,deliverySystem[i][j].context);
@@ -137,14 +151,14 @@ void str_freeSystem(void) {
 	int i;
 	int j;
 	
-	for(i=0;i<systemSize[0];i++)
+	for(i=0;i<systemSize[0];i++) //context free function
 	{		
 		for(j=0;j<systemSize[1];j++)
 			{			
 				free(deliverySystem[i][j].context);
 			}
 	}		
-	for(i=0;i<systemSize[0];i++)
+	for(i=0;i<systemSize[0];i++) //deliverySystem free function
 		{
 			free(deliverySystem[i]); 
 		} 
